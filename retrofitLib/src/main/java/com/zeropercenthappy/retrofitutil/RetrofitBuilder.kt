@@ -6,7 +6,6 @@ import okhttp3.Interceptor
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.Exception
 import java.util.*
 
 class RetrofitBuilder {
@@ -15,6 +14,9 @@ class RetrofitBuilder {
     private var extraParamMap = TreeMap<String, String>()
     private val extraHeaderMap = TreeMap<String, String>()
     private val extraInterceptorList = arrayListOf<Interceptor>()
+    private var connectTimeoutMs: Long = 10_000
+    private var readTimeoutMs: Long = 10_000
+    private var writeTimeoutMs: Long = 10_000
 
     fun baseUrl(baseUrl: String): RetrofitBuilder {
         this.baseUrl = baseUrl
@@ -66,6 +68,21 @@ class RetrofitBuilder {
         return this
     }
 
+    fun connectTimeout(ms: Long): RetrofitBuilder {
+        this.connectTimeoutMs = ms
+        return this
+    }
+
+    fun readTimeoutMs(ms: Long): RetrofitBuilder {
+        this.readTimeoutMs = ms
+        return this
+    }
+
+    fun writeTimeoutSec(ms: Long): RetrofitBuilder {
+        this.writeTimeoutMs = ms
+        return this
+    }
+
     fun build(context: Context): Retrofit {
         if (TextUtils.isEmpty(baseUrl)) {
             throw Exception("base url can not be empty")
@@ -83,6 +100,9 @@ class RetrofitBuilder {
         // 构造OkHttpClient
         val okHttpClient = OkHttpClientBuilder()
                 .addInterceptors(extraInterceptorList)
+                .connectTimeout(connectTimeoutMs)
+                .readTimeoutMs(readTimeoutMs)
+                .writeTimeoutSec(writeTimeoutMs)
                 .build()
 
         return Retrofit.Builder()
