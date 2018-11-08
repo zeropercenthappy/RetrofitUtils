@@ -2,10 +2,11 @@ package com.zeropercenthappy.retrofitutilsample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import com.yanzhenjie.album.Album
-import com.zeropercenthappy.retrofitutil.Config
 import com.zeropercenthappy.retrofitutil.RequestBodyBuilder
 import com.zeropercenthappy.retrofitutil.RetrofitBuilder
+import com.zeropercenthappy.retrofitutil.RetrofitConfig
 import com.zeropercenthappy.retrofitutilsample.api.IKalleApi
 import com.zeropercenthappy.retrofitutilsample.api.KalleUrl
 import com.zeropercenthappy.retrofitutilsample.pojo.*
@@ -29,8 +30,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Config.DEBUG_MODE = true
-        Config.LOG_LEVEL = HttpLoggingInterceptor.Level.BODY
+        RetrofitConfig.DEBUG_MODE = true
+        RetrofitConfig.LOG_LEVEL = HttpLoggingInterceptor.Level.BODY
 
         extraTestParamMap = mapOf("atopkey" to "aTopValue", "customKey" to "customValue")
 
@@ -133,14 +134,16 @@ class MainActivity : AppCompatActivity() {
                 .baseUrl(KalleUrl.BASE_URL)
                 .build(this)
         val kalleApi = retrofit.create(IKalleApi::class.java)
-        val downloadFile = kalleApi.downloadFile("upload/1527220017003e5258758-d4a4-495d-bd07-1eb3a6633f39.jpg")
+//        val downloadFile = kalleApi.downloadFile("upload/1527220017003e5258758-d4a4-495d-bd07-1eb3a6633f39.jpg")
+        val downloadFile = kalleApi.downloadFile("http://cdn.aixifan.com/downloads/AcFun-portal-release-5.7.0.575-575.apk")
+        Log.i("test", "start enqueue")
         downloadFile.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
 
             }
 
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                val cacheFile = CacheUtils.createFormatedCacheFile(this@MainActivity, "jpg")
+                val cacheFile = CacheUtils.createFormatedCacheFile(this@MainActivity, "apk")
                 if (cacheFile != null && response.body() != null) {
                     FileUtils.writeFileByIS(cacheFile, response.body()!!.byteStream(), false)
                 }
