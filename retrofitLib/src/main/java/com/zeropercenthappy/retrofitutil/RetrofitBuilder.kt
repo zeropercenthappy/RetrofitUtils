@@ -3,10 +3,12 @@ package com.zeropercenthappy.retrofitutil
 import android.content.Context
 import android.text.TextUtils
 import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class RetrofitBuilder {
     private var baseUrl: String = ""
@@ -17,6 +19,7 @@ class RetrofitBuilder {
     private var connectTimeoutMs: Long = 10_000
     private var readTimeoutMs: Long = 10_000
     private var writeTimeoutMs: Long = 10_000
+    private val okHttpClientBuilder = OkHttpClient.Builder()
 
     fun baseUrl(baseUrl: String): RetrofitBuilder {
         this.baseUrl = baseUrl
@@ -83,27 +86,37 @@ class RetrofitBuilder {
         return this
     }
 
+    fun okhttpClientBuilderOption(option: (OkHttpClient.Builder) -> Unit): RetrofitBuilder {
+        option(okHttpClientBuilder)
+        return this
+    }
+
     fun build(context: Context): Retrofit {
+        //检测baseUrl
         if (TextUtils.isEmpty(baseUrl)) {
             throw Exception("base url can not be empty")
+        } else if (!baseUrl.endsWith("/")) {
+            throw Exception("base url must end with /")
         }
         // 默认Interceptor
         val defaultInterceptor = DefaultInterceptor(context.applicationContext, handleCookie,
                 extraParamMap, extraHeaderMap)
         extraInterceptorList.add(0, defaultInterceptor)
         // LogInterceptor
-        if (Config.DEBUG_MODE) {
+        if (RetrofitConfig.DEBUG_MODE) {
             val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.level = Config.LOG_LEVEL
+            loggingInterceptor.level = RetrofitConfig.LOG_LEVEL
             extraInterceptorList.add(loggingInterceptor)
         }
         // 构造OkHttpClient
-        val okHttpClient = OkHttpClientBuilder()
-                .addInterceptors(extraInterceptorList)
-                .connectTimeout(connectTimeoutMs)
-                .readTimeoutMs(readTimeoutMs)
-                .writeTimeoutSec(writeTimeoutMs)
-                .build()
+        val okHttpClient = okHttpClientBuilder.apply {
+            for (interceptor in extraInterceptorList) {
+                addInterceptor(interceptor)
+            }
+            connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
+            readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
+            writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
+        }.build()
 
         return Retrofit.Builder()
                 .baseUrl(baseUrl)
