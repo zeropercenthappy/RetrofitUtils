@@ -2,7 +2,6 @@ package com.zeropercenthappy.retrofitutilsample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import com.yanzhenjie.album.Album
 import com.zeropercenthappy.retrofitutil.RequestBodyBuilder
 import com.zeropercenthappy.retrofitutil.RetrofitBuilder
@@ -136,7 +135,6 @@ class MainActivity : AppCompatActivity() {
         val kalleApi = retrofit.create(IKalleApi::class.java)
 //        val downloadFile = kalleApi.downloadFile("upload/1527220017003e5258758-d4a4-495d-bd07-1eb3a6633f39.jpg")
         val downloadFile = kalleApi.downloadFile("http://cdn.aixifan.com/downloads/AcFun-portal-release-5.7.0.575-575.apk")
-        Log.i("test", "start enqueue")
         downloadFile.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
 
