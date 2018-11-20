@@ -23,4 +23,6 @@ dependencies {
 }
 ```
 
-## Useage(TODO)
+## Usage
+
+in sample module
