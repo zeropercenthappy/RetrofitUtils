@@ -9,8 +9,8 @@ import com.zeropercenthappy.retrofitutil.RetrofitConfig
 import com.zeropercenthappy.retrofitutilsample.api.IKalleApi
 import com.zeropercenthappy.retrofitutilsample.api.KalleUrl
 import com.zeropercenthappy.retrofitutilsample.pojo.*
-import com.zeropercenthappy.utilslibrary.CacheUtils
-import com.zeropercenthappy.utilslibrary.FileUtils
+import com.zeropercenthappy.utilslibrary.utils.CacheUtils
+import com.zeropercenthappy.utilslibrary.utils.FileUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.FormBody
 import okhttp3.ResponseBody
