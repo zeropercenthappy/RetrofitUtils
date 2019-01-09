@@ -19,7 +19,7 @@ Step 2. Add the dependency
 
 ```
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.0.3'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.0.4'
 }
 ```
 

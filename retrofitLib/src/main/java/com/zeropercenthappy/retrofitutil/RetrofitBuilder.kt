@@ -2,6 +2,7 @@ package com.zeropercenthappy.retrofitutil
 
 import android.content.Context
 import android.text.TextUtils
+import me.jessyan.progressmanager.ProgressManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -19,7 +20,7 @@ class RetrofitBuilder {
     private var connectTimeoutMs: Long = 10_000
     private var readTimeoutMs: Long = 10_000
     private var writeTimeoutMs: Long = 10_000
-    private val okHttpClientBuilder = OkHttpClient.Builder()
+    private val okHttpClientBuilder = ProgressManager.getInstance().with(OkHttpClient.Builder())
 
     fun baseUrl(baseUrl: String): RetrofitBuilder {
         this.baseUrl = baseUrl

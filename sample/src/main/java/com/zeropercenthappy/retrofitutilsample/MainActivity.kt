@@ -12,16 +12,22 @@ import com.zeropercenthappy.retrofitutilsample.pojo.*
 import com.zeropercenthappy.utilslibrary.utils.CacheUtils
 import com.zeropercenthappy.utilslibrary.utils.FileUtils
 import kotlinx.android.synthetic.main.activity_main.*
+import me.jessyan.progressmanager.ProgressListener
+import me.jessyan.progressmanager.ProgressManager
+import me.jessyan.progressmanager.body.ProgressInfo
 import okhttp3.FormBody
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.error
+import org.jetbrains.anko.info
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private lateinit var extraTestParamMap: Map<String, String>
 
@@ -51,9 +57,17 @@ class MainActivity : AppCompatActivity() {
         val login = kalleApi.login("guest", "123456")
         login.enqueue(object : Callback<LoginBean> {
             override fun onFailure(call: Call<LoginBean>, t: Throwable) {
+                if (call.isCanceled) {
+                    // cancel
+                } else {
+                    // fail
+                }
             }
 
             override fun onResponse(call: Call<LoginBean>, response: Response<LoginBean>) {
+                if (response.isSuccessful && response.body() != null) {
+                    // success
+                }
             }
         })
     }
@@ -67,9 +81,17 @@ class MainActivity : AppCompatActivity() {
         val get = kalleApi.get("guest", "25")
         get.enqueue(object : Callback<GetBean> {
             override fun onFailure(call: Call<GetBean>, t: Throwable) {
+                if (call.isCanceled) {
+                    // cancel
+                } else {
+                    // fail
+                }
             }
 
             override fun onResponse(call: Call<GetBean>, response: Response<GetBean>) {
+                if (response.isSuccessful && response.body() != null) {
+                    // success
+                }
             }
         })
     }
@@ -87,9 +109,17 @@ class MainActivity : AppCompatActivity() {
 
         post.enqueue(object : Callback<PostBean> {
             override fun onFailure(call: Call<PostBean>, t: Throwable) {
+                if (call.isCanceled) {
+                    // cancel
+                } else {
+                    // fail
+                }
             }
 
             override fun onResponse(call: Call<PostBean>, response: Response<PostBean>) {
+                if (response.isSuccessful && response.body() != null) {
+                    // success
+                }
             }
         })
     }
@@ -121,30 +151,58 @@ class MainActivity : AppCompatActivity() {
         val uploadFile = kalleApi.uploadFile(name, age, partList)
         uploadFile.enqueue(object : Callback<UploadBean> {
             override fun onFailure(call: Call<UploadBean>, t: Throwable) {
+                if (call.isCanceled) {
+                    // cancel
+                } else {
+                    // fail
+                }
             }
 
             override fun onResponse(call: Call<UploadBean>, response: Response<UploadBean>) {
+                if (response.isSuccessful && response.body() != null) {
+                    // success
+                }
             }
         })
     }
 
     private fun download() {
+        val fileUrl = "http://cdn.aixifan.com/downloads/AcFun-portal-release-5.7.0.575-575.apk"
         val retrofit = RetrofitBuilder()
                 .baseUrl(KalleUrl.BASE_URL)
                 .build(this)
         val kalleApi = retrofit.create(IKalleApi::class.java)
-//        val downloadFile = kalleApi.downloadFile("upload/1527220017003e5258758-d4a4-495d-bd07-1eb3a6633f39.jpg")
-        val downloadFile = kalleApi.downloadFile("http://cdn.aixifan.com/downloads/AcFun-portal-release-5.7.0.575-575.apk")
+        val downloadFile = kalleApi.downloadFile(fileUrl)
+        //progress
+        ProgressManager.getInstance().addResponseListener(fileUrl, object : ProgressListener {
+            override fun onProgress(progressInfo: ProgressInfo) {
+                info("progress:${progressInfo.percent}%")
+            }
+
+            override fun onError(id: Long, e: Exception?) {
+                e?.printStackTrace()
+                error(e?.localizedMessage)
+            }
+        })
+        //
         downloadFile.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-
+                if (call.isCanceled) {
+                    // cancel
+                } else {
+                    // fail
+                }
             }
 
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                val cacheFile = CacheUtils.createFormatedCacheFile(this@MainActivity, "apk")
-                if (cacheFile != null && response.body() != null) {
-                    FileUtils.writeFileByIS(cacheFile, response.body()!!.byteStream(), false)
+                // download completely
+                if (response.isSuccessful && response.body() != null) {
+                    val cacheFile = CacheUtils.createFormatedCacheFile(this@MainActivity, "apk")
+                    if (cacheFile != null) {
+                        FileUtils.writeFileByIS(cacheFile, response.body()!!.byteStream(), false)
+                    }
                 }
+
             }
         })
     }
@@ -158,10 +216,17 @@ class MainActivity : AppCompatActivity() {
         val postJson = kalleApi.postJson(simpleBean)
         postJson.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                if (call.isCanceled) {
+                    // cancel
+                } else {
+                    // fail
+                }
             }
 
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                val result = response.body()?.string()
+                if (response.isSuccessful && response.body() != null) {
+                    // success
+                }
             }
         })
     }

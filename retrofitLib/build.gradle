@@ -11,7 +11,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 3
-        versionName "1.0.3"
+        versionName "1.0.4"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -41,6 +41,7 @@ dependencies {
     api "com.squareup.retrofit2:retrofit:$retrofit_version"
     api "com.squareup.retrofit2:converter-gson:$retrofit_version"
     api 'com.squareup.okhttp3:logging-interceptor:3.8.0'
+    api 'me.jessyan:progressmanager:1.5.0'
 }
 
 task sourcesJar(type: Jar) {
