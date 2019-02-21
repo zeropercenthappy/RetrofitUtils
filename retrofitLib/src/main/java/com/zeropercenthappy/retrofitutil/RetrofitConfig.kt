@@ -12,5 +12,5 @@ object RetrofitConfig {
      * [HttpLoggingInterceptor.Level]
      */
     @JvmStatic
-    var LOG_LEVEL = HttpLoggingInterceptor.Level.BODY
+    var LOG_LEVEL = HttpLoggingInterceptor.Level.BASIC
 }
