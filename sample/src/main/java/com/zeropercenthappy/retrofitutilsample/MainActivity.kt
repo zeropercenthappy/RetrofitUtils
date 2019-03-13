@@ -20,6 +20,7 @@ import me.jessyan.progressmanager.ProgressListener
 import me.jessyan.progressmanager.ProgressManager
 import me.jessyan.progressmanager.body.ProgressInfo
 import okhttp3.FormBody
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.anko.AnkoLogger
@@ -171,6 +172,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         val name = RequestBodyBuilder.createText("guest")
         val age = RequestBodyBuilder.createText("25")
         val partList = RequestBodyBuilder.createMultipartBodyPartList(fileMap)
+
         val uploadFile = kalleApi.uploadFile(name, age, partList)
         uploadFile.enqueue(object : Callback<UploadBean> {
             override fun onFailure(call: Call<UploadBean>, t: Throwable) {
@@ -190,6 +192,29 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 }
             }
         })
+
+//        val paramMap = TreeMap<String, RequestBody>()
+//        paramMap["name"] = RequestBodyBuilder.createText("guest")
+//        paramMap["age"] = RequestBodyBuilder.createText("25")
+//        val uploadFile1 = kalleApi.uploadFile1(paramMap, partList)
+//        uploadFile1.enqueue(object : Callback<UploadBean> {
+//            override fun onFailure(call: Call<UploadBean>, t: Throwable) {
+//                if (call.isCanceled) {
+//                    // cancel
+//                    info { "upload request cancel" }
+//                } else {
+//                    // fail
+//                    info { "upload request fail" }
+//                }
+//            }
+//
+//            override fun onResponse(call: Call<UploadBean>, response: Response<UploadBean>) {
+//                if (response.isSuccessful && response.body() != null) {
+//                    // success
+//                    info { "upload request success" }
+//                }
+//            }
+//        })
     }
 
     private fun download() {
