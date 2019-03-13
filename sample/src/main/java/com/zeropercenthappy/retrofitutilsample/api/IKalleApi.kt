@@ -29,6 +29,10 @@ interface IKalleApi {
     @POST(KalleUrl.UPLOAD)
     fun uploadFile1(@PartMap paramMap: TreeMap<String, RequestBody>, @Part fileList: List<MultipartBody.Part>): Call<UploadBean>
 
+    @Multipart
+    @POST(KalleUrl.UPLOAD)
+    fun uploadFile1(@PartMap paramMap: TreeMap<String, RequestBody>, @Part partList: List<MultipartBody.Part>): Call<UploadBean>
+
     @Streaming
     @GET
     fun downloadFile(@Url fileUrl: String): Call<ResponseBody>
