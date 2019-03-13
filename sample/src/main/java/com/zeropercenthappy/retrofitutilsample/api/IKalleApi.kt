@@ -7,6 +7,7 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
+import java.util.*
 
 interface IKalleApi {
 
@@ -17,16 +18,16 @@ interface IKalleApi {
     @GET(KalleUrl.GET)
     fun get(@Query("name") name: String, @Query("age") age: String): Call<GetBean>
 
-//    @POST(KalleUrl.POST)
-//    @FormUrlEncoded
-//    fun post(@Field("age") age: String): Call<PostBean>
-
     @POST(KalleUrl.POST)
     fun post(@Body formBody: FormBody): Call<PostBean>
 
     @Multipart
     @POST(KalleUrl.UPLOAD)
-    fun uploadFile(@Part("name") name: RequestBody, @Part("age") age: RequestBody, @Part partList: List<MultipartBody.Part>): Call<UploadBean>
+    fun uploadFile(@Part("name") name: RequestBody, @Part("age") age: RequestBody, @Part fileList: List<MultipartBody.Part>): Call<UploadBean>
+
+    @Multipart
+    @POST(KalleUrl.UPLOAD)
+    fun uploadFile1(@PartMap paramMap: TreeMap<String, RequestBody>, @Part fileList: List<MultipartBody.Part>): Call<UploadBean>
 
     @Streaming
     @GET
