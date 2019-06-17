@@ -34,5 +34,5 @@ interface IKalleApi {
     fun downloadFile(@Url fileUrl: String): Call<ResponseBody>
 
     @POST(KalleUrl.POST_JSON)
-    fun postJson(@Body simpleBean: SimpleBean): Call<ResponseBody>
+    fun postJson(@Body requestBody: RequestBody): Call<ResponseBody>
 }

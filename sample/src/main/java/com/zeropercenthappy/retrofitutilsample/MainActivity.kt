@@ -2,6 +2,7 @@ package com.zeropercenthappy.retrofitutilsample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import com.google.gson.Gson
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import com.yanzhenjie.album.Album
@@ -268,7 +269,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 .build(this)
         val kalleApi = retrofit.create(IKalleApi::class.java)
         val simpleBean = SimpleBean("guest", "25")
-        val postJson = kalleApi.postJson(simpleBean)
+        val resultBody = RequestBodyBuilder.createJson(Gson().toJson(simpleBean))
+        val postJson = kalleApi.postJson(resultBody)
         postJson.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 if (call.isCanceled) {

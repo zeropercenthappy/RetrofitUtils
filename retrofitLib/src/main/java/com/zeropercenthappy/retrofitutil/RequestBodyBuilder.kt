@@ -28,4 +28,9 @@ object RequestBodyBuilder {
         }
         return partList
     }
+
+    @JvmStatic
+    fun createJson(value: String): RequestBody {
+        return RequestBody.create(MediaType.parse(ContentType.JSON.value), value)
+    }
 }
