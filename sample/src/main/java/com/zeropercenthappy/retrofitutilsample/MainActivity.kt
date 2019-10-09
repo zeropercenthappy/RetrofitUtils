@@ -21,7 +21,6 @@ import me.jessyan.progressmanager.ProgressListener
 import me.jessyan.progressmanager.ProgressManager
 import me.jessyan.progressmanager.body.ProgressInfo
 import okhttp3.FormBody
-import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.anko.AnkoLogger
@@ -37,6 +36,7 @@ import java.util.*
 class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private lateinit var extraTestParamMap: Map<String, String>
+    private lateinit var kalleApi: IKalleApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,16 +45,22 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         RetrofitConfig.DEBUG_MODE = true
         RetrofitConfig.LOG_LEVEL = HttpLoggingInterceptor.Level.BODY
 
-        val imageLoaderConfig = ImageLoaderConfiguration.Builder(this)
-                .build()
+        extraTestParamMap = mapOf("aTopKey" to "aTopValue", "customKey" to "customValue")
+        val retrofit = RetrofitBuilder()
+            .baseUrl(KalleUrl.BASE_URL)
+            .addParams(extraTestParamMap)
+            .build(this)
+        kalleApi = retrofit.create(IKalleApi::class.java)
+
+        val imageLoaderConfig = ImageLoaderConfiguration.Builder(this).build()
         ImageLoader.getInstance().init(imageLoaderConfig)
-        Album.initialize(AlbumConfig.newBuilder(this)
+        Album.initialize(
+            AlbumConfig.newBuilder(this)
                 .setAlbumLoader(AlbumImageLoader())
-                .build())
+                .build()
+        )
 
         ProgressManager.getInstance().setRefreshTime(1000)
-
-        extraTestParamMap = mapOf("aTopKey" to "aTopValue", "customKey" to "customValue")
 
         btn_login.setOnClickListener { login() }
         btn_get.setOnClickListener { get() }
@@ -65,11 +71,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun login() {
-        val retrofit = RetrofitBuilder()
-                .baseUrl(KalleUrl.BASE_URL)
-                .addParams(extraTestParamMap)
-                .build(this)
-        val kalleApi = retrofit.create(IKalleApi::class.java)
         val login = kalleApi.login("guest", "123456")
         login.enqueue(object : Callback<LoginBean> {
             override fun onFailure(call: Call<LoginBean>, t: Throwable) {
@@ -92,11 +93,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun get() {
-        val retrofit = RetrofitBuilder()
-                .baseUrl(KalleUrl.BASE_URL)
-                .addParams(extraTestParamMap)
-                .build(this)
-        val kalleApi = retrofit.create(IKalleApi::class.java)
         val get = kalleApi.get("guest", "25")
         get.enqueue(object : Callback<GetBean> {
             override fun onFailure(call: Call<GetBean>, t: Throwable) {
@@ -122,11 +118,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         val builder = FormBody.Builder()
         builder.addEncoded("name", "guest")
         builder.addEncoded("age", "25")
-        val retrofit = RetrofitBuilder()
-                .baseUrl(KalleUrl.BASE_URL)
-                .build(this)
         val formBody = builder.build()
-        val kalleApi = retrofit.create(IKalleApi::class.java)
         val post = kalleApi.post(formBody)
 
         post.enqueue(object : Callback<PostBean> {
@@ -151,30 +143,45 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private fun pickImage() {
         Album.image(this)
-                .multipleChoice()
-                .selectCount(3)
-                .camera(true)
-                .columnCount(3)
-                .onResult { result ->
-                    val fileMap = TreeMap<String, File>()
-                    for ((index, albumFile) in result.withIndex()) {
-                        fileMap["file${index + 1}"] = File(albumFile.path)
-                    }
-                    upload(fileMap)
+            .multipleChoice()
+            .selectCount(3)
+            .camera(true)
+            .columnCount(3)
+            .onResult { result ->
+                val fileMap = TreeMap<String, File>()
+                for ((index, albumFile) in result.withIndex()) {
+                    fileMap["file${index + 1}"] = File(albumFile.path)
                 }
-                .start()
+                upload(fileMap)
+            }
+            .start()
     }
 
     private fun upload(fileMap: TreeMap<String, File>) {
-        val retrofit = RetrofitBuilder()
-                .baseUrl(KalleUrl.BASE_URL)
-                .build(this)
-        val kalleApi = retrofit.create(IKalleApi::class.java)
+        // 为了避免添加的测试用的公共参数影响ProgressManager获取进度，这里重新构建Retrofit
+        // 实际业务中根据具体情况，可以对url进行处理、拼接后，将实际的url传给ProgressManager
+        val tempRetrofit = RetrofitBuilder()
+            .baseUrl(KalleUrl.BASE_URL)
+            .build(this@MainActivity)
+        val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
+        //progress
+        ProgressManager.getInstance()
+            .addRequestListener(KalleUrl.BASE_URL + KalleUrl.UPLOAD, object : ProgressListener {
+                override fun onProgress(progressInfo: ProgressInfo) {
+                    info { "progress:${progressInfo.percent}%" }
+                }
+
+                override fun onError(id: Long, e: Exception?) {
+                    e?.printStackTrace()
+                    error(e?.localizedMessage)
+                }
+            })
+        //
         val name = RequestBodyBuilder.createText("guest")
         val age = RequestBodyBuilder.createText("25")
         val fileList = RequestBodyBuilder.createMultipartBodyPartList(fileMap)
 
-        val uploadFile = kalleApi.uploadFile(name, age, fileList)
+        val uploadFile = tempKalleApi.uploadFile(name, age, fileList)
         uploadFile.enqueue(object : Callback<UploadBean> {
             override fun onFailure(call: Call<UploadBean>, t: Throwable) {
                 if (call.isCanceled) {
@@ -197,7 +204,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 //        val paramMap = TreeMap<String, RequestBody>()
 //        paramMap["name"] = RequestBodyBuilder.createText("guest")
 //        paramMap["age"] = RequestBodyBuilder.createText("25")
-//        val uploadFile1 = kalleApi.uploadFile1(paramMap, fileList)
+//        val uploadFile1 = tempKalleApi.uploadFile1(paramMap, fileList)
 //        uploadFile1.enqueue(object : Callback<UploadBean> {
 //            override fun onFailure(call: Call<UploadBean>, t: Throwable) {
 //                if (call.isCanceled) {
@@ -219,16 +226,19 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun download() {
-        val fileUrl = "http://cdn.aixifan.com/downloads/AcFun-portal-release-5.7.0.575-575.apk"
-        val retrofit = RetrofitBuilder()
-                .baseUrl(KalleUrl.BASE_URL)
-                .build(this)
-        val kalleApi = retrofit.create(IKalleApi::class.java)
-        val downloadFile = kalleApi.downloadFile(fileUrl)
-        //progress
+        // 为了避免添加的测试用的公共参数影响ProgressManager获取进度，这里重新构建Retrofit
+        // 实际业务中根据具体情况，可以对url进行处理、拼接后，将实际的url传给ProgressManager
+        val tempRetrofit = RetrofitBuilder()
+            .baseUrl(KalleUrl.BASE_URL)
+            .build(this@MainActivity)
+        val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
+        // 实际使用中避免以这种方式定义url，这样字符串会被加入全局字符串常量池, 池中的字符串将不会被回收
+        // 在多次下载同一个url时导致ProgressManager的回调多次被触发
+        val fileUrl = "https://imgs.aixifan.com/cms/2018_10_16/1539673075965.jpg"
+        // progress
         ProgressManager.getInstance().addResponseListener(fileUrl, object : ProgressListener {
             override fun onProgress(progressInfo: ProgressInfo) {
-                info("progress:${progressInfo.percent}%")
+                info { "progress:${progressInfo.percent}%" }
             }
 
             override fun onError(id: Long, e: Exception?) {
@@ -237,6 +247,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
         })
         //
+        val downloadFile = tempKalleApi.downloadFile(fileUrl)
         downloadFile.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 if (call.isCanceled) {
@@ -252,7 +263,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 // download completely
                 doAsync {
                     if (response.isSuccessful && response.body() != null) {
-                        val cacheFile = CacheUtils.createFormatedCacheFile(this@MainActivity, "apk")
+                        val cacheFile = CacheUtils.createFormatedCacheFile(this@MainActivity, "jpg")
                         if (cacheFile != null) {
                             val result = FileUtils.writeFileByIS(cacheFile, response.body()!!.byteStream(), false)
                             info { if (result) "download success" else "download failed" }
@@ -264,10 +275,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun postJson() {
-        val retrofit = RetrofitBuilder()
-                .baseUrl(KalleUrl.BASE_URL)
-                .build(this)
-        val kalleApi = retrofit.create(IKalleApi::class.java)
         val simpleBean = SimpleBean("guest", "25")
         val resultBody = RequestBodyBuilder.createJson(Gson().toJson(simpleBean))
         val postJson = kalleApi.postJson(resultBody)

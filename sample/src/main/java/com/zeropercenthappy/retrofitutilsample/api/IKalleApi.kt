@@ -1,6 +1,9 @@
 package com.zeropercenthappy.retrofitutilsample.api
 
-import com.zeropercenthappy.retrofitutilsample.pojo.*
+import com.zeropercenthappy.retrofitutilsample.pojo.GetBean
+import com.zeropercenthappy.retrofitutilsample.pojo.LoginBean
+import com.zeropercenthappy.retrofitutilsample.pojo.PostBean
+import com.zeropercenthappy.retrofitutilsample.pojo.UploadBean
 import okhttp3.FormBody
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

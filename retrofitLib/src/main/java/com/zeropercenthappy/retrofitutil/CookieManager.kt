@@ -34,7 +34,7 @@ object CookieManager {
 
     @JvmStatic
     fun updateCookie(context: Context, response: okhttp3.Response) {
-        response.headers().get(CONSTANT_SET_COOKIE)?.run {
+        response.headers[CONSTANT_SET_COOKIE]?.run {
             if (!TextUtils.isEmpty(this)) {
                 setCookie(context, this)
             }

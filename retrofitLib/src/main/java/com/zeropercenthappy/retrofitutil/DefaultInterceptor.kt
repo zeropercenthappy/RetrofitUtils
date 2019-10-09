@@ -38,10 +38,9 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
     }
 
     private fun addExtraParam(request: Request): Request {
-        val method = request.method()
-        when (method) {
+        when (request.method) {
             "GET", "get" -> {
-                val httpUrlBuilder = request.url().newBuilder()
+                val httpUrlBuilder = request.url.newBuilder()
                 for (key in extraParamMap.keys) {
                     val value = extraParamMap[key]
                     if (value != null && value != "") {
@@ -52,13 +51,12 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
                 return request.newBuilder().url(newHttpUrl).build()
             }
             "POST", "post" -> {
-                val requestBody = request.body()
-                when (requestBody) {
+                when (val requestBody = request.body) {
                     is FormBody -> {
                         //FormBody
                         val formBodyBuilder = FormBody.Builder()
                         //原参数
-                        for (i in 0 until requestBody.size()) {
+                        for (i in 0 until requestBody.size) {
                             formBodyBuilder.addEncoded(requestBody.encodedName(i), requestBody.encodedValue(i))
                         }
                         //新参数
@@ -70,7 +68,7 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
                         }
                         val formBody = formBodyBuilder.build()
                         return request.newBuilder()
-                                .method(request.method(), formBody)
+                                .method(request.method, formBody)
                                 .build()
                     }
                     is MultipartBody -> {
@@ -78,7 +76,7 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
                         val builder = MultipartBody.Builder()
                         builder.setType(MultipartBody.FORM)
                         //原参数
-                        for (part in requestBody.parts()) {
+                        for (part in requestBody.parts) {
                             builder.addPart(part)
                         }
                         //新参数
@@ -90,7 +88,7 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
                         }
                         val multipartBody = builder.build()
                         return request.newBuilder()
-                                .method(request.method(), multipartBody)
+                                .method(request.method, multipartBody)
                                 .build()
                     }
                     else -> return request

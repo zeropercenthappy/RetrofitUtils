@@ -1,7 +1,7 @@
 package com.zeropercenthappy.retrofitutil
 
 import com.zeropercenthappy.utilslibrary.utils.FileUtils
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
@@ -9,7 +9,7 @@ import java.io.File
 object RequestBodyBuilder {
     @JvmStatic
     fun createText(value: String): RequestBody {
-        return RequestBody.create(MediaType.parse(ContentType.TEXT.value), value)
+        return RequestBody.create(ContentType.TEXT.value.toMediaTypeOrNull(), value)
     }
 
     @JvmStatic
@@ -20,7 +20,7 @@ object RequestBodyBuilder {
             file?.apply {
                 val mimeType = FileUtils.getFileMimeType(file)
                 mimeType?.apply {
-                    val requestBody = RequestBody.create(MediaType.parse(mimeType), file)
+                    val requestBody = RequestBody.create(mimeType.toMediaTypeOrNull(), file)
                     val part = MultipartBody.Part.createFormData(key, file.name, requestBody)
                     partList.add(part)
                 }
@@ -31,6 +31,6 @@ object RequestBodyBuilder {
 
     @JvmStatic
     fun createJson(value: String): RequestBody {
-        return RequestBody.create(MediaType.parse(ContentType.JSON.value), value)
+        return RequestBody.create(ContentType.JSON.value.toMediaTypeOrNull(), value)
     }
 }

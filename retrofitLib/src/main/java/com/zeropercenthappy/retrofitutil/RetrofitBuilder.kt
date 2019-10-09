@@ -6,6 +6,8 @@ import me.jessyan.progressmanager.ProgressManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.CallAdapter
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
@@ -21,6 +23,8 @@ class RetrofitBuilder {
     private var readTimeoutMs: Long = 10_000
     private var writeTimeoutMs: Long = 10_000
     private val okHttpClientBuilder = ProgressManager.getInstance().with(OkHttpClient.Builder())
+    private val converterFactoryList = arrayListOf<Converter.Factory>()
+    private val callAdapterFactoryList = arrayListOf<CallAdapter.Factory>()
 
     fun baseUrl(baseUrl: String): RetrofitBuilder {
         this.baseUrl = baseUrl
@@ -68,27 +72,37 @@ class RetrofitBuilder {
     }
 
     fun addInterceptors(interceptorList: List<Interceptor>): RetrofitBuilder {
-        this.extraInterceptorList.addAll(interceptorList)
+        extraInterceptorList.addAll(interceptorList)
         return this
     }
 
     fun connectTimeout(ms: Long): RetrofitBuilder {
-        this.connectTimeoutMs = ms
+        connectTimeoutMs = ms
         return this
     }
 
     fun readTimeoutMs(ms: Long): RetrofitBuilder {
-        this.readTimeoutMs = ms
+        readTimeoutMs = ms
         return this
     }
 
     fun writeTimeoutSec(ms: Long): RetrofitBuilder {
-        this.writeTimeoutMs = ms
+        writeTimeoutMs = ms
         return this
     }
 
     fun okhttpClientBuilderOption(option: (OkHttpClient.Builder) -> Unit): RetrofitBuilder {
         option(okHttpClientBuilder)
+        return this
+    }
+
+    fun addConverterFactory(factory: Converter.Factory): RetrofitBuilder {
+        converterFactoryList.add(factory)
+        return this
+    }
+
+    fun addCallAdapterFactory(factory: CallAdapter.Factory): RetrofitBuilder {
+        callAdapterFactoryList.add(factory)
         return this
     }
 
@@ -100,8 +114,8 @@ class RetrofitBuilder {
             throw Exception("base url must end with /")
         }
         // 默认Interceptor
-        val defaultInterceptor = DefaultInterceptor(context.applicationContext, handleCookie,
-                extraParamMap, extraHeaderMap)
+        val defaultInterceptor =
+            DefaultInterceptor(context.applicationContext, handleCookie, extraParamMap, extraHeaderMap)
         extraInterceptorList.add(0, defaultInterceptor)
         // LogInterceptor
         if (RetrofitConfig.DEBUG_MODE) {
@@ -118,11 +132,20 @@ class RetrofitBuilder {
             readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
             writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
         }.build()
+        // 默认ConverterAdapterFactory，使用GsonConverterFactory
+        converterFactoryList.add(0, GsonConverterFactory.create())
+        // 默认CallAdapterFactory，暂不配置
 
-        return Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(okHttpClient)
-                .build()
+        // 构造Retrofit
+        val builder = Retrofit.Builder()
+        builder.baseUrl(baseUrl)
+        builder.client(okHttpClient)
+        for (factory in converterFactoryList) {
+            builder.addConverterFactory(factory)
+        }
+        for (factory in callAdapterFactoryList) {
+            builder.addCallAdapterFactory(factory)
+        }
+        return builder.build()
     }
 }
