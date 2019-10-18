@@ -4,9 +4,11 @@ import android.content.Context
 import android.text.TextUtils
 import okhttp3.*
 
-class DefaultInterceptor(private var context: Context, private val handleCookie: Boolean = true,
-                         private val extraParamMap: Map<String, String>,
-                         private val extraHeaderMap: Map<String, String>) : Interceptor {
+class DefaultInterceptor(
+    private var context: Context, private val handleCookie: Boolean = true,
+    private val extraParamMap: Map<String, String>,
+    private val extraHeaderMap: Map<String, String>
+) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
@@ -17,7 +19,7 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
         val requestBuilder = request.newBuilder()
         //是否需要自动管理Cookie
         if (handleCookie) {
-            val cookie = CookieManager.getCookie(context)
+            val cookie = CookieManager.getCookie(context, request.url.scheme, request.url.host, request.url.port)
             if (!TextUtils.isEmpty(cookie)) {
                 requestBuilder.addHeader(CookieManager.CONSTANT_COOKIE, cookie)
             }
@@ -32,7 +34,7 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
 
         val response = chain.proceed(requestBuilder.build())
         //处理返回的Cookie
-        CookieManager.updateCookie(context, response)
+        CookieManager.updateCookie(context, request.url.scheme, request.url.host, request.url.port, response)
 
         return response
     }
@@ -68,8 +70,8 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
                         }
                         val formBody = formBodyBuilder.build()
                         return request.newBuilder()
-                                .method(request.method, formBody)
-                                .build()
+                            .method(request.method, formBody)
+                            .build()
                     }
                     is MultipartBody -> {
                         //MultipartBody
@@ -88,8 +90,8 @@ class DefaultInterceptor(private var context: Context, private val handleCookie:
                         }
                         val multipartBody = builder.build()
                         return request.newBuilder()
-                                .method(request.method, multipartBody)
-                                .build()
+                            .method(request.method, multipartBody)
+                            .build()
                     }
                     else -> return request
                 }
