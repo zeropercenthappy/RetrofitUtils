@@ -5,7 +5,6 @@ import android.text.TextUtils
 import me.jessyan.progressmanager.ProgressManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.CallAdapter
 import retrofit2.Converter
 import retrofit2.Retrofit
@@ -117,12 +116,6 @@ class RetrofitBuilder {
         val defaultInterceptor =
             DefaultInterceptor(context.applicationContext, handleCookie, extraParamMap, extraHeaderMap)
         extraInterceptorList.add(0, defaultInterceptor)
-        // LogInterceptor
-        if (RetrofitConfig.DEBUG_MODE) {
-            val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.level = RetrofitConfig.LOG_LEVEL
-            extraInterceptorList.add(loggingInterceptor)
-        }
         // 构造OkHttpClient
         val okHttpClient = okHttpClientBuilder.apply {
             for (interceptor in extraInterceptorList) {

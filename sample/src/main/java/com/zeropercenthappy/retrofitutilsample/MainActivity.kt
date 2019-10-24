@@ -3,17 +3,13 @@ package com.zeropercenthappy.retrofitutilsample
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.google.gson.Gson
-import com.nostra13.universalimageloader.core.ImageLoader
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.AlbumConfig
+import com.zeropercenthappy.okhttploginterceptor.OkHttpLogInterceptor
 import com.zeropercenthappy.retrofitutil.RequestBodyBuilder
 import com.zeropercenthappy.retrofitutil.RetrofitBuilder
-import com.zeropercenthappy.retrofitutil.RetrofitConfig
 import com.zeropercenthappy.retrofitutilsample.api.IKalleApi
 import com.zeropercenthappy.retrofitutilsample.api.KalleUrl
 import com.zeropercenthappy.retrofitutilsample.pojo.*
-import com.zeropercenthappy.retrofitutilsample.tool.AlbumImageLoader
 import com.zeropercenthappy.utilslibrary.utils.CacheUtils
 import com.zeropercenthappy.utilslibrary.utils.FileUtils
 import kotlinx.android.synthetic.main.activity_main.*
@@ -22,7 +18,6 @@ import me.jessyan.progressmanager.ProgressManager
 import me.jessyan.progressmanager.body.ProgressInfo
 import okhttp3.FormBody
 import okhttp3.ResponseBody
-import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.error
@@ -42,25 +37,14 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        RetrofitConfig.DEBUG_MODE = true
-        RetrofitConfig.LOG_LEVEL = HttpLoggingInterceptor.Level.BODY
-
         extraTestParamMap = mapOf("aTopKey" to "aTopValue", "customKey" to "customValue")
+
         val retrofit = RetrofitBuilder()
+            .addInterceptor(OkHttpLogInterceptor())
             .baseUrl(KalleUrl.BASE_URL)
             .addParams(extraTestParamMap)
             .build(this)
         kalleApi = retrofit.create(IKalleApi::class.java)
-
-        val imageLoaderConfig = ImageLoaderConfiguration.Builder(this).build()
-        ImageLoader.getInstance().init(imageLoaderConfig)
-        Album.initialize(
-            AlbumConfig.newBuilder(this)
-                .setAlbumLoader(AlbumImageLoader())
-                .build()
-        )
-
-        ProgressManager.getInstance().setRefreshTime(1000)
 
         btn_login.setOnClickListener { login() }
         btn_get.setOnClickListener { get() }
@@ -161,6 +145,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         // 为了避免添加的测试用的公共参数影响ProgressManager获取进度，这里重新构建Retrofit
         // 实际业务中根据具体情况，可以对url进行处理、拼接后，将实际的url传给ProgressManager
         val tempRetrofit = RetrofitBuilder()
+            .addInterceptor(OkHttpLogInterceptor())
             .baseUrl(KalleUrl.BASE_URL)
             .build(this@MainActivity)
         val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
@@ -229,6 +214,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         // 为了避免添加的测试用的公共参数影响ProgressManager获取进度，这里重新构建Retrofit
         // 实际业务中根据具体情况，可以对url进行处理、拼接后，将实际的url传给ProgressManager
         val tempRetrofit = RetrofitBuilder()
+            .addInterceptor(OkHttpLogInterceptor())
             .baseUrl(KalleUrl.BASE_URL)
             .build(this@MainActivity)
         val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)

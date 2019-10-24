@@ -1,10 +1,10 @@
 # RetrofitUtils
 
----
-
 ## Download
 
-Step 1. Add the JitPack repository to your build file
+### Step 1. 
+
+Add it in your root build.gradle at the end of repositories:
 
 ```
 allprojects {
@@ -15,14 +15,21 @@ allprojects {
 }
 ```
 
-Step 2. Add the dependency
+### Step 2. 
+
+Add the dependency
 
 ```
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.0.8'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.0.9'
 }
 ```
 
 ## Usage
 
 in sample module
+
+## Other
+
+Log interceptor can choose this:[OkHttpInterceptor](https://github.com/zeropercenthappy/OkHttpLogInterceptor)
+
