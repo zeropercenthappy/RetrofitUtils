@@ -218,8 +218,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             .baseUrl(KalleUrl.BASE_URL)
             .build(this@MainActivity)
         val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
-        // 实际使用中避免以这种方式定义url，这样字符串会被加入全局字符串常量池, 池中的字符串将不会被回收
-        // 在多次下载同一个url时导致ProgressManager的回调多次被触发
         val fileUrl = "https://imgs.aixifan.com/cms/2018_10_16/1539673075965.jpg"
         // progress
         ProgressManager.getInstance().addResponseListener(fileUrl, object : ProgressListener {
