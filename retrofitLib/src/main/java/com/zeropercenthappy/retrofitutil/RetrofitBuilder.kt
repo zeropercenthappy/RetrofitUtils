@@ -80,12 +80,12 @@ class RetrofitBuilder {
         return this
     }
 
-    fun readTimeoutMs(ms: Long): RetrofitBuilder {
+    fun readTimeout(ms: Long): RetrofitBuilder {
         readTimeoutMs = ms
         return this
     }
 
-    fun writeTimeoutSec(ms: Long): RetrofitBuilder {
+    fun writeTimeout(ms: Long): RetrofitBuilder {
         writeTimeoutMs = ms
         return this
     }
