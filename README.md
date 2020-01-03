@@ -21,7 +21,7 @@ Add the dependency
 
 ```
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.0.9'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.0'
 }
 ```
 
