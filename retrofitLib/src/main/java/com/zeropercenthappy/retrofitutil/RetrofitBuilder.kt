@@ -125,10 +125,6 @@ class RetrofitBuilder {
             readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
             writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
         }.build()
-        // 默认ConverterAdapterFactory，使用GsonConverterFactory
-        converterFactoryList.add(0, GsonConverterFactory.create())
-        // 默认CallAdapterFactory，暂不配置
-
         // 构造Retrofit
         val builder = Retrofit.Builder()
         builder.baseUrl(baseUrl)

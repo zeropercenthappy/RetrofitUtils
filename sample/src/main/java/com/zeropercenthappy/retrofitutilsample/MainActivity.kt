@@ -25,6 +25,7 @@ import org.jetbrains.anko.info
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.util.*
 
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             .addInterceptor(OkHttpLogInterceptor())
             .baseUrl(KalleUrl.BASE_URL)
             .addParams(extraTestParamMap)
+            .addConverterFactory(GsonConverterFactory.create())
             .build(this)
         kalleApi = retrofit.create(IKalleApi::class.java)
 
@@ -249,7 +251,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     if (response.isSuccessful && response.body() != null) {
                         val cacheFile = CacheUtils.createFormatedCacheFile(this@MainActivity, "jpg")
                         if (cacheFile != null) {
-                            val result = FileUtils.writeFileByIS(cacheFile, response.body()!!.byteStream(), false)
+                            val result = FileUtils.writeFileByIS(
+                                cacheFile,
+                                response.body()!!.byteStream(),
+                                false
+                            )
                             info { if (result) "download success" else "download failed" }
                         }
                     }
