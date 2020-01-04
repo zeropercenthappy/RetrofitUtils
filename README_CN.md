@@ -21,7 +21,7 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.0'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.1'
 }
 ```
 
@@ -81,7 +81,7 @@ RequestBodyBuilder.createJson(json)
 提供了`StringConverter` ，可以用于当希望结果直接是String，便于开发者自行处理时：
 
 ```kotlin
-addCallAdapterFactory(StringConverterFactory())
+addConverterFactory(StringConverterFactory())
 ```
 
 定义接口，返回类型为Call\<String\>
@@ -92,7 +92,7 @@ addCallAdapterFactory(StringConverterFactory())
 fun query(@Field("name") name: String): Call<String>
 ```
 
-### CoroutineConverter
+### CoroutineCallAdapter
 
 提供了`CoroutineConverter` ，支持在协程内进行请求，整个请求只需几行代码：
 
@@ -105,7 +105,7 @@ addCallAdapterFactory(CoroutineCallAdapterFactory())
 ```kotlin
 @FormUrlEncoded
 @POST(Url.POST)
-fun query(@Field("name") name: String): CaCoroutineCallll<QueryBean>
+fun query(@Field("name") name: String): CoroutineCall<QueryBean>
 ```
 
 然后在协程中进行请求

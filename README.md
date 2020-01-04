@@ -21,7 +21,7 @@ Add the dependency
 
 ```
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.0'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.1'
 }
 ```
 
@@ -81,7 +81,7 @@ RequestBodyBuilder.createJson(json)
 Here offer a `StringConverter` for simple request that with response is String:
 
 ```kotlin
-addCallAdapterFactory(StringConverterFactory())
+addConverterFactory(StringConverterFactory())
 ```
 
 Then you can define a request with a String response:
@@ -92,7 +92,7 @@ Then you can define a request with a String response:
 fun query(@Field("name") name: String): Call<String>
 ```
 
-### CoroutineConverter
+### CoroutineCallAdapter
 
 Here offer a `CoroutineConverter` that support request in coroutine scope which just need several lines code:
 
@@ -105,7 +105,7 @@ Then you can define a requst with `CoroutineCall` response:
 ```kotlin
 @FormUrlEncoded
 @POST(Url.POST)
-fun query(@Field("name") name: String): CaCoroutineCallll<QueryBean>
+fun query(@Field("name") name: String): CoroutineCall<QueryBean>
 ```
 
 Start this request in a coroutine scope:
