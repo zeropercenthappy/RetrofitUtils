@@ -48,7 +48,7 @@ dependencies {
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    getArchiveClassifier().set("sources")
 }
 
 artifacts {
