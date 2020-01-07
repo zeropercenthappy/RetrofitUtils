@@ -7,8 +7,6 @@ import com.yanzhenjie.album.Album
 import com.zeropercenthappy.okhttploginterceptor.OkHttpLogInterceptor
 import com.zeropercenthappy.retrofitutil.RequestBodyBuilder
 import com.zeropercenthappy.retrofitutil.RetrofitBuilder
-import com.zeropercenthappy.retrofitutil.call_adapter.coroutine_call_adapter.CoroutineCallAdapterFactory
-import com.zeropercenthappy.retrofitutil.converter.string_converter.StringConverterFactory
 import com.zeropercenthappy.retrofitutilsample.api.IKalleApi
 import com.zeropercenthappy.retrofitutilsample.api.KalleUrl
 import com.zeropercenthappy.retrofitutilsample.pojo.*
@@ -27,6 +25,7 @@ import org.jetbrains.anko.info
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.util.*
 
@@ -45,8 +44,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             .addInterceptor(OkHttpLogInterceptor())
             .baseUrl(KalleUrl.BASE_URL)
             .addParams(extraTestParamMap)
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .addConverterFactory(StringConverterFactory())
+            .addConverterFactory(GsonConverterFactory.create())
             .build(this)
         kalleApi = retrofit.create(IKalleApi::class.java)
 
@@ -151,6 +149,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         val tempRetrofit = RetrofitBuilder()
             .addInterceptor(OkHttpLogInterceptor())
             .baseUrl(KalleUrl.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
             .build(this@MainActivity)
         val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
         //progress
@@ -289,5 +288,4 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
         })
     }
-
 }
