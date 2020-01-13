@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import com.zeropercenthappy.retrofitutil.RetrofitBuilder
 import com.zeropercenthappy.utilslibrary.utils.FileUtils
-import com.zeropercenthappy.utilslibrary.utils.ZPHLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -15,13 +14,10 @@ import java.io.Serializable
 private const val EXTRA_DOWNLOAD_MAP = "DownloadService.download.map"
 
 /**
- * Start a download service running in a independent process.
+ * Download service which is running in a independent process.
  *
- * Warning: The result of download is not reliable. Because download task may be terminated in progress.
- *
- * So you have to check the file integrity before use it.
  */
-class DownloadService : IntentService("DownloadService"), ZPHLogger {
+class DownloadService : IntentService("DownloadService") {
 
     private lateinit var api: DownloadApi
     private lateinit var downloadMap: Map<String, File>
@@ -66,8 +62,25 @@ class DownloadService : IntentService("DownloadService"), ZPHLogger {
         downloadTask = this
         for (url in downloadMap.keys) {
             val destinationFile = downloadMap[url] ?: continue
+            val cacheFile = checkCacheFile(destinationFile)
+            if (destinationFile.exists()) {
+                continue
+            }
             val responseBody = api.download(url)
-            FileUtils.writeFileByIS(destinationFile, responseBody.byteStream(), false)
+            val result = FileUtils.writeFileByIS(cacheFile, responseBody.byteStream())
+
+            // Download success, move cache file to destination file
+            if (result) {
+                cacheFile.renameTo(destinationFile)
+            }
         }
+    }
+
+    /**
+     * @return Download cache file.
+     */
+    private fun checkCacheFile(destinationFile: File): File {
+        val dir = destinationFile.parent
+        return File(dir, "${destinationFile.name}.cache")
     }
 }

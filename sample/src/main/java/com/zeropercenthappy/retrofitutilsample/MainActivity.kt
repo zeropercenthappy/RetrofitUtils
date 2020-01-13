@@ -250,12 +250,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 // download completely
                 doAsync {
                     if (response.isSuccessful && response.body() != null) {
-                        val cacheFile = CacheUtils.createFormatedCacheFile(this@MainActivity, "jpg")
+                        val cacheFile =
+                            CacheUtils.createFormatedCacheFile(this@MainActivity, "jpg", true)
                         if (cacheFile != null) {
                             val result = FileUtils.writeFileByIS(
                                 cacheFile,
-                                response.body()!!.byteStream(),
-                                false
+                                response.body()!!.byteStream()
                             )
                             info { if (result) "download success" else "download failed" }
                         }
