@@ -6,7 +6,7 @@
 
 Add it in your root build.gradle at the end of repositories:
 
-```
+```groovy
 allprojects {
     repositories {
         ...
@@ -19,9 +19,9 @@ allprojects {
 
 Add the dependency
 
-```
+```groovy
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.1'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.2'
 }
 ```
 
@@ -50,6 +50,10 @@ val retrofit = RetrofitBuilder()
     .addConverterFactory(GsonConverterFactory.create())
     // option: if you have call adapter to add
     .addCallAdapterFactory(yourCallAdapter)
+	// ootion: if you want to modify okhttp builder
+	.okhttpClientBuilderOption { okhttpBuilder ->
+        
+    }	
     .build(context)
 val api =retrofit.create(Api::class.java)
 ```

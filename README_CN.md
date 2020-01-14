@@ -6,7 +6,7 @@
 
 添加以下配置到你项目根目录的`build.gradle`
 
-```
+```groovy
 allprojects {
     repositories {
         ...
@@ -19,9 +19,9 @@ allprojects {
 
 在你项目module中的`build.gradle`中添加依赖
 
-```
+```groovy
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.1'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.2'
 }
 ```
 
@@ -50,6 +50,10 @@ val retrofit = RetrofitBuilder()
     .addConverterFactory(GsonConverterFactory.create())
     // 可选: 如果你有CallAdapter要添加
     .addCallAdapterFactory(yourCallAdapter)
+	// 可选: 如果你想修改okhttp builder
+	.okhttpClientBuilderOption { okhttpBuilder ->
+        
+    }
     .build(context)
 val api =retrofit.create(Api::class.java)
 ```
