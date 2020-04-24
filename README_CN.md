@@ -66,7 +66,7 @@ val api =retrofit.create(Api::class.java)
 RequestBodyBuilder.createText(content)
 ```
 
-创建`multilpart body part`: ( 框架会自动处理文件的mimetype，只需要传入带有接口规定的key和你要传的文file的map即可)
+创建`multilpart body part`: ( 框架会自动处理文件的mimetype，只需要传入带有接口规定的key和你要传的file的map即可)
 
 ```kotlin
 RequestBodyBuilder.createMultipartBodyPartList(fileMap)
