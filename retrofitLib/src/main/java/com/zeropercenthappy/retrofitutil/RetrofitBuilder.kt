@@ -89,7 +89,7 @@ class RetrofitBuilder {
         return this
     }
 
-    fun okhttpClientBuilderOption(option: (OkHttpClient.Builder) -> Unit): RetrofitBuilder {
+    fun okHttpClientBuilderOption(option: (OkHttpClient.Builder) -> Unit): RetrofitBuilder {
         option(okHttpClientBuilder)
         return this
     }
@@ -121,12 +121,18 @@ class RetrofitBuilder {
         extraInterceptorList.add(0, defaultInterceptor)
         // 构造OkHttpClient
         val okHttpClient = okHttpClientBuilder.apply {
+            // 拦截器
             for (interceptor in extraInterceptorList) {
                 addInterceptor(interceptor)
             }
+            // 超时
             connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
             readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
             writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
+            // Cookie管理
+            if (handleCookie) {
+                cookieJar(CookieJarImpl(context))
+            }
         }.build()
         // 构造Retrofit
         val builder = Retrofit.Builder()

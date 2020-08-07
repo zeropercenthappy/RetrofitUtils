@@ -1,7 +1,6 @@
 package com.zeropercenthappy.retrofitutil
 
 import android.content.Context
-import android.text.TextUtils
 import okhttp3.*
 
 class DefaultInterceptor(
@@ -18,18 +17,6 @@ class DefaultInterceptor(
             request = addExtraParam(request)
         }
         val requestBuilder = request.newBuilder()
-        // 是否需要自动管理Cookie
-        if (handleCookie) {
-            val cookie = CookieManager.getCookie(
-                context,
-                request.url.scheme,
-                request.url.host,
-                request.url.port
-            )
-            if (!TextUtils.isEmpty(cookie)) {
-                requestBuilder.addHeader(CookieManager.CONSTANT_COOKIE, cookie)
-            }
-        }
         // 其它自定义Header
         for (key in extraHeaderMap.keys) {
             val value = extraHeaderMap[key]
@@ -38,19 +25,7 @@ class DefaultInterceptor(
             }
         }
         // 发起请求
-        val response = chain.proceed(requestBuilder.build())
-        // 处理返回的Cookie
-        if (handleCookie) {
-            CookieManager.updateCookie(
-                context,
-                request.url.scheme,
-                request.url.host,
-                request.url.port,
-                response
-            )
-        }
-
-        return response
+        return chain.proceed(requestBuilder.build())
     }
 
     private fun addExtraParam(request: Request): Request {
