@@ -8,7 +8,6 @@ import okhttp3.OkHttpClient
 import retrofit2.CallAdapter
 import retrofit2.Converter
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -106,15 +105,19 @@ class RetrofitBuilder {
     }
 
     fun build(context: Context): Retrofit {
-        //检测baseUrl
+        // 检测baseUrl
         if (TextUtils.isEmpty(baseUrl)) {
             throw Exception("base url can not be empty")
         } else if (!baseUrl.endsWith("/")) {
             throw Exception("base url must end with /")
         }
         // 默认Interceptor
-        val defaultInterceptor =
-            DefaultInterceptor(context.applicationContext, handleCookie, extraParamMap, extraHeaderMap)
+        val defaultInterceptor = DefaultInterceptor(
+            context.applicationContext,
+            handleCookie,
+            extraParamMap,
+            extraHeaderMap
+        )
         extraInterceptorList.add(0, defaultInterceptor)
         // 构造OkHttpClient
         val okHttpClient = okHttpClientBuilder.apply {

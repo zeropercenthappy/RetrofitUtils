@@ -5,36 +5,50 @@ import android.text.TextUtils
 import okhttp3.*
 
 class DefaultInterceptor(
-    private var context: Context, private val handleCookie: Boolean = true,
+    private var context: Context,
+    private val handleCookie: Boolean = true,
     private val extraParamMap: Map<String, String>,
     private val extraHeaderMap: Map<String, String>
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
-        //其它额外参数
+        // 其它额外参数
         if (extraParamMap.isNotEmpty()) {
             request = addExtraParam(request)
         }
         val requestBuilder = request.newBuilder()
-        //是否需要自动管理Cookie
+        // 是否需要自动管理Cookie
         if (handleCookie) {
-            val cookie = CookieManager.getCookie(context, request.url.scheme, request.url.host, request.url.port)
+            val cookie = CookieManager.getCookie(
+                context,
+                request.url.scheme,
+                request.url.host,
+                request.url.port
+            )
             if (!TextUtils.isEmpty(cookie)) {
                 requestBuilder.addHeader(CookieManager.CONSTANT_COOKIE, cookie)
             }
         }
-        //其它自定义Header
+        // 其它自定义Header
         for (key in extraHeaderMap.keys) {
             val value = extraHeaderMap[key]
             if (value != null && value != "") {
                 requestBuilder.addHeader(key, value)
             }
         }
-
+        // 发起请求
         val response = chain.proceed(requestBuilder.build())
-        //处理返回的Cookie
-        CookieManager.updateCookie(context, request.url.scheme, request.url.host, request.url.port, response)
+        // 处理返回的Cookie
+        if (handleCookie) {
+            CookieManager.updateCookie(
+                context,
+                request.url.scheme,
+                request.url.host,
+                request.url.port,
+                response
+            )
+        }
 
         return response
     }
@@ -59,7 +73,10 @@ class DefaultInterceptor(
                         val formBodyBuilder = FormBody.Builder()
                         //原参数
                         for (i in 0 until requestBody.size) {
-                            formBodyBuilder.addEncoded(requestBody.encodedName(i), requestBody.encodedValue(i))
+                            formBodyBuilder.addEncoded(
+                                requestBody.encodedName(i),
+                                requestBody.encodedValue(i)
+                            )
                         }
                         //新参数
                         for (key in extraParamMap.keys) {
