@@ -251,7 +251,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 doAsync {
                     if (response.isSuccessful && response.body() != null) {
                         val cacheFile =
-                            CacheUtils.createFormatedCacheFile(this@MainActivity, "jpg", true)
+                            CacheUtils.createFormatCacheFile(this@MainActivity, "jpg", true)
                         if (cacheFile != null) {
                             val result = FileUtils.writeFileByIS(
                                 cacheFile,
