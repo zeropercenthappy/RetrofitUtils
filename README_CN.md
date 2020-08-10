@@ -21,7 +21,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.2'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.3'
 }
 ```
 
@@ -54,6 +54,8 @@ val retrofit = RetrofitBuilder()
 	.okhttpClientBuilderOption { okhttpBuilder ->
         
     }
+	// 可选： 如果你想设置缓存上限（设为-1即关闭缓存）
+	.setMaxCacheSize(1024_000)
     .build(context)
 val api =retrofit.create(Api::class.java)
 ```

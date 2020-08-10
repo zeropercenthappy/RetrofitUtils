@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.google.gson.Gson
 import com.yanzhenjie.album.Album
-import com.zeropercenthappy.okhttploginterceptor.OkHttpLogInterceptor
+import com.zeropercenthappy.okhttp_log_interceptor.OkHttpLogInterceptor
 import com.zeropercenthappy.retrofitutil.RequestBodyBuilder
 import com.zeropercenthappy.retrofitutil.RetrofitBuilder
 import com.zeropercenthappy.retrofitutilsample.api.IKalleApi

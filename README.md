@@ -21,7 +21,7 @@ Add the dependency
 
 ```groovy
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.2'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.3'
 }
 ```
 
@@ -53,9 +53,11 @@ val retrofit = RetrofitBuilder()
 	// ootion: if you want to modify okhttp builder
 	.okhttpClientBuilderOption { okhttpBuilder ->
         
-    }	
+    }
+	// option: if you want to set max cache size (set it as -1 to disable)
+	.setMaxCacheSize(1024_000)
     .build(context)
-val api =retrofit.create(Api::class.java)
+val api = retrofit.create(Api::class.java)
 ```
 
 ### RequestBodyBuilder

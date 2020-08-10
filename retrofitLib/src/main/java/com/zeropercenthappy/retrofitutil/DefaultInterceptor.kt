@@ -1,11 +1,8 @@
 package com.zeropercenthappy.retrofitutil
 
-import android.content.Context
 import okhttp3.*
 
 class DefaultInterceptor(
-    private var context: Context,
-    private val handleCookie: Boolean = true,
     private val extraParamMap: Map<String, String>,
     private val extraHeaderMap: Map<String, String>
 ) : Interceptor {

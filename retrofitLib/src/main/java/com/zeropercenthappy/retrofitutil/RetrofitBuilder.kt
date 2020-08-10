@@ -3,11 +3,13 @@ package com.zeropercenthappy.retrofitutil
 import android.content.Context
 import android.text.TextUtils
 import me.jessyan.progressmanager.ProgressManager
+import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.CallAdapter
 import retrofit2.Converter
 import retrofit2.Retrofit
+import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -17,6 +19,7 @@ class RetrofitBuilder {
     private var extraParamMap = TreeMap<String, String>()
     private val extraHeaderMap = TreeMap<String, String>()
     private val extraInterceptorList = arrayListOf<Interceptor>()
+    private var maxCacheSize = 1024_000_000L
     private var connectTimeoutMs: Long = 10_000
     private var readTimeoutMs: Long = 10_000
     private var writeTimeoutMs: Long = 10_000
@@ -104,6 +107,11 @@ class RetrofitBuilder {
         return this
     }
 
+    fun setMaxCacheSize(size: Long): RetrofitBuilder {
+        maxCacheSize = size
+        return this
+    }
+
     fun build(context: Context): Retrofit {
         // 检测baseUrl
         if (TextUtils.isEmpty(baseUrl)) {
@@ -113,17 +121,18 @@ class RetrofitBuilder {
         }
         // 默认Interceptor
         val defaultInterceptor = DefaultInterceptor(
-            context.applicationContext,
-            handleCookie,
             extraParamMap,
             extraHeaderMap
         )
         extraInterceptorList.add(0, defaultInterceptor)
         // 构造OkHttpClient
         val okHttpClient = okHttpClientBuilder.apply {
-            // 拦截器
-            for (interceptor in extraInterceptorList) {
-                addInterceptor(interceptor)
+            // 缓存
+            if (maxCacheSize > 0) {
+                val cacheDir = File(context.cacheDir, "OkHttpCache")
+                cacheDir.mkdirs()
+                val cache = Cache(cacheDir, maxCacheSize)
+                cache(cache)
             }
             // 超时
             connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
@@ -132,6 +141,10 @@ class RetrofitBuilder {
             // Cookie管理
             if (handleCookie) {
                 cookieJar(CookieJarImpl(context))
+            }
+            // 拦截器
+            for (interceptor in extraInterceptorList) {
+                addInterceptor(interceptor)
             }
         }.build()
         // 构造Retrofit
