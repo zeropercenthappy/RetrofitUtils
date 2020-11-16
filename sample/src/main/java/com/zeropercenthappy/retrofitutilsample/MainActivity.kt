@@ -41,11 +41,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         extraTestParamMap = mapOf("aTopKey" to "aTopValue", "customKey" to "customValue")
 
         val retrofit = RetrofitBuilder()
-            .addInterceptor(OkHttpLogInterceptor())
-            .baseUrl(KalleUrl.BASE_URL)
-            .addParams(extraTestParamMap)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build(this)
+                .addInterceptor(OkHttpLogInterceptor())
+                .baseUrl(KalleUrl.BASE_URL)
+                .addParams(extraTestParamMap)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build(this)
         kalleApi = retrofit.create(IKalleApi::class.java)
 
         btn_login.setOnClickListener { login() }
@@ -129,41 +129,41 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private fun pickImage() {
         Album.image(this)
-            .multipleChoice()
-            .selectCount(3)
-            .camera(true)
-            .columnCount(3)
-            .onResult { result ->
-                val fileMap = TreeMap<String, File>()
-                for ((index, albumFile) in result.withIndex()) {
-                    fileMap["file${index + 1}"] = File(albumFile.path)
+                .multipleChoice()
+                .selectCount(3)
+                .camera(true)
+                .columnCount(3)
+                .onResult { result ->
+                    val fileMap = TreeMap<String, File>()
+                    for ((index, albumFile) in result.withIndex()) {
+                        fileMap["file${index + 1}"] = File(albumFile.path)
+                    }
+                    upload(fileMap)
                 }
-                upload(fileMap)
-            }
-            .start()
+                .start()
     }
 
     private fun upload(fileMap: TreeMap<String, File>) {
         // 为了避免添加的测试用的公共参数影响ProgressManager获取进度，这里重新构建Retrofit
         // 实际业务中根据具体情况，可以对url进行处理、拼接后，将实际的url传给ProgressManager
         val tempRetrofit = RetrofitBuilder()
-            .addInterceptor(OkHttpLogInterceptor())
-            .baseUrl(KalleUrl.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build(this@MainActivity)
+                .addInterceptor(OkHttpLogInterceptor())
+                .baseUrl(KalleUrl.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build(this@MainActivity)
         val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
         //progress
         ProgressManager.getInstance()
-            .addRequestListener(KalleUrl.BASE_URL + KalleUrl.UPLOAD, object : ProgressListener {
-                override fun onProgress(progressInfo: ProgressInfo) {
-                    info { "progress:${progressInfo.percent}%" }
-                }
+                .addRequestListener(KalleUrl.BASE_URL + KalleUrl.UPLOAD, object : ProgressListener {
+                    override fun onProgress(progressInfo: ProgressInfo) {
+                        info { "progress:${progressInfo.percent}%" }
+                    }
 
-                override fun onError(id: Long, e: Exception?) {
-                    e?.printStackTrace()
-                    error(e?.localizedMessage)
-                }
-            })
+                    override fun onError(id: Long, e: Exception?) {
+                        e?.printStackTrace()
+                        error(e?.localizedMessage)
+                    }
+                })
         //
         val name = RequestBodyBuilder.createText("guest")
         val age = RequestBodyBuilder.createText("25")
@@ -217,9 +217,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         // 为了避免添加的测试用的公共参数影响ProgressManager获取进度，这里重新构建Retrofit
         // 实际业务中根据具体情况，可以对url进行处理、拼接后，将实际的url传给ProgressManager
         val tempRetrofit = RetrofitBuilder()
-            .addInterceptor(OkHttpLogInterceptor())
-            .baseUrl(KalleUrl.BASE_URL)
-            .build(this@MainActivity)
+                .addInterceptor(OkHttpLogInterceptor())
+                .baseUrl(KalleUrl.BASE_URL)
+                .build(this@MainActivity)
         val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
         val fileUrl = "https://imgs.aixifan.com/cms/2018_10_16/1539673075965.jpg"
         // progress
@@ -250,13 +250,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 // download completely
                 doAsync {
                     if (response.isSuccessful && response.body() != null) {
-                        val cacheFile =
-                            CacheUtils.createFormatCacheFile(this@MainActivity, "jpg", true)
-                        if (cacheFile != null) {
-                            val result = FileUtils.writeFileByIS(
-                                cacheFile,
-                                response.body()!!.byteStream()
-                            )
+                        val cacheFile = CacheUtils.createFormatCacheFile(this@MainActivity, "jpg", true)
+                        val body = response.body()
+                        if (cacheFile != null && body != null) {
+                            val result = FileUtils.writeFileByIS(cacheFile, body.byteStream())
                             info { if (result) "download success" else "download failed" }
                         }
                     }
