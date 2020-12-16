@@ -2,7 +2,6 @@ package com.zeropercenthappy.retrofitutil
 
 import android.content.Context
 import android.text.TextUtils
-import me.jessyan.progressmanager.ProgressManager
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -23,7 +22,7 @@ class RetrofitBuilder {
     private var connectTimeoutMs: Long = 10_000
     private var readTimeoutMs: Long = 10_000
     private var writeTimeoutMs: Long = 10_000
-    private val okHttpClientBuilder = ProgressManager.getInstance().with(OkHttpClient.Builder())
+    private val okHttpClientBuilder = OkHttpClient.Builder()
     private val converterFactoryList = arrayListOf<Converter.Factory>()
     private val callAdapterFactoryList = arrayListOf<CallAdapter.Factory>()
 
@@ -121,32 +120,36 @@ class RetrofitBuilder {
         }
         // 默认Interceptor
         val defaultInterceptor = DefaultInterceptor(
-            extraParamMap,
-            extraHeaderMap
+                extraParamMap,
+                extraHeaderMap
         )
         extraInterceptorList.add(0, defaultInterceptor)
         // 构造OkHttpClient
-        val okHttpClient = okHttpClientBuilder.apply {
-            // 缓存
-            if (maxCacheSize > 0) {
-                val cacheDir = File(context.cacheDir, "OkHttpCache")
-                cacheDir.mkdirs()
-                val cache = Cache(cacheDir, maxCacheSize)
-                cache(cache)
-            }
-            // 超时
-            connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
-            readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
-            writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
-            // Cookie管理
-            if (handleCookie) {
-                cookieJar(CookieJarImpl(context))
-            }
-            // 拦截器
-            for (interceptor in extraInterceptorList) {
-                addInterceptor(interceptor)
-            }
-        }.build()
+        val okHttpClient = okHttpClientBuilder
+                .also {
+                    // 缓存
+                    if (maxCacheSize > 0) {
+                        val cacheDir = File(context.cacheDir, "OkHttpCache")
+                        cacheDir.mkdirs()
+                        val cache = Cache(cacheDir, maxCacheSize)
+                        it.cache(cache)
+                    }
+                }.also {
+                    // 超时
+                    it.connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
+                    it.readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
+                    it.writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
+                }.also {
+                    // Cookie管理
+                    if (handleCookie) {
+                        it.cookieJar(CookieJarImpl(context))
+                    }
+                }.also {
+                    // 拦截器
+                    for (interceptor in extraInterceptorList) {
+                        it.addInterceptor(interceptor)
+                    }
+                }.build()
         // 构造Retrofit
         val builder = Retrofit.Builder()
         builder.baseUrl(baseUrl)

@@ -21,7 +21,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.3'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.2.0'
 }
 ```
 
@@ -50,8 +50,8 @@ val retrofit = RetrofitBuilder()
     .addConverterFactory(GsonConverterFactory.create())
     // 可选: 如果你有CallAdapter要添加
     .addCallAdapterFactory(yourCallAdapter)
-	// 可选: 如果你想修改okhttp builder
-	.okhttpClientBuilderOption { okhttpBuilder ->
+	// 可选: 如果你想修改okHttp builder
+	.okHttpClientBuilderOption { okHttpBuilder ->
         
     }
 	// 可选： 如果你想设置缓存上限（设为-1即关闭缓存）

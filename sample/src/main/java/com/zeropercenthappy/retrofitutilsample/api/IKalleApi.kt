@@ -10,32 +10,42 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
-import java.util.*
 
 interface IKalleApi {
 
+    companion object {
+        const val BASE_URL = "http://kalle.nohttp.net/"
+
+        const val LOGIN = "login"
+        const val GET = "method/get"
+        const val POST = "method/post"
+        const val UPLOAD = "upload/form"
+        const val POST_JSON = "upload/body/json"
+    }
+
     @FormUrlEncoded
-    @POST(KalleUrl.LOGIN)
+    @POST(LOGIN)
     fun login(@Field("name") name: String, @Field("password") password: String): Call<LoginBean>
 
-    @GET(KalleUrl.GET)
+    @GET(GET)
     fun get(@Query("name") name: String, @Query("age") age: String): Call<GetBean>
 
-    @POST(KalleUrl.POST)
+    @POST(POST)
     fun post(@Body formBody: FormBody): Call<PostBean>
 
     @Multipart
-    @POST(KalleUrl.UPLOAD)
-    fun uploadFile(@Part("name") name: RequestBody, @Part("age") age: RequestBody, @Part fileList: List<MultipartBody.Part>): Call<UploadBean>
-
-    @Multipart
-    @POST(KalleUrl.UPLOAD)
-    fun uploadFile1(@PartMap paramMap: TreeMap<String, RequestBody>, @Part fileList: List<MultipartBody.Part>): Call<UploadBean>
+    @POST(UPLOAD)
+    fun uploadFile(
+            @Part("name") name: RequestBody,
+            @Part("age") age: RequestBody,
+            @Part filePartList: List<MultipartBody.Part>
+    ): Call<UploadBean>
 
     @Streaming
     @GET
     fun downloadFile(@Url fileUrl: String): Call<ResponseBody>
 
-    @POST(KalleUrl.POST_JSON)
+    @POST(POST_JSON)
+    @Headers("Content-Type: application/json")
     fun postJson(@Body requestBody: RequestBody): Call<ResponseBody>
 }

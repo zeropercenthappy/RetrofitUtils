@@ -5,22 +5,21 @@ import android.support.v7.app.AppCompatActivity
 import com.google.gson.Gson
 import com.yanzhenjie.album.Album
 import com.zeropercenthappy.okhttp_log_interceptor.OkHttpLogInterceptor
-import com.zeropercenthappy.retrofitutil.RequestBodyBuilder
+import com.zeropercenthappy.retrofitutil.ContentType
 import com.zeropercenthappy.retrofitutil.RetrofitBuilder
 import com.zeropercenthappy.retrofitutilsample.api.IKalleApi
-import com.zeropercenthappy.retrofitutilsample.api.KalleUrl
 import com.zeropercenthappy.retrofitutilsample.pojo.*
 import com.zeropercenthappy.utilslibrary.utils.CacheUtils
 import com.zeropercenthappy.utilslibrary.utils.FileUtils
 import kotlinx.android.synthetic.main.activity_main.*
-import me.jessyan.progressmanager.ProgressListener
-import me.jessyan.progressmanager.ProgressManager
-import me.jessyan.progressmanager.body.ProgressInfo
 import okhttp3.FormBody
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.error
 import org.jetbrains.anko.info
 import retrofit2.Call
 import retrofit2.Callback
@@ -31,19 +30,22 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
 
-    private lateinit var extraTestParamMap: Map<String, String>
+    private lateinit var extraParamMap: Map<String, String>
+    private lateinit var extraHeaderMap: Map<String, String>
     private lateinit var kalleApi: IKalleApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        extraTestParamMap = mapOf("aTopKey" to "aTopValue", "customKey" to "customValue")
+        extraParamMap = mapOf("extraParamKey" to "extraParamValue")
+        extraHeaderMap = mapOf("extraHeaderKey" to "extraHeaderValue")
 
         val retrofit = RetrofitBuilder()
-                .addInterceptor(OkHttpLogInterceptor())
-                .baseUrl(KalleUrl.BASE_URL)
-                .addParams(extraTestParamMap)
+                .addInterceptor(OkHttpLogInterceptor("RetrofitTest"))
+                .baseUrl(IKalleApi.BASE_URL)
+                .addHeaders(extraHeaderMap)
+                .addParams(extraParamMap)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build(this)
         kalleApi = retrofit.create(IKalleApi::class.java)
@@ -72,7 +74,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             override fun onResponse(call: Call<LoginBean>, response: Response<LoginBean>) {
                 if (response.isSuccessful && response.body() != null) {
                     // success
-                    info { "login request success" }
+                    info { "login request success: ${response.body()}" }
                 }
             }
         })
@@ -94,7 +96,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             override fun onResponse(call: Call<GetBean>, response: Response<GetBean>) {
                 if (response.isSuccessful && response.body() != null) {
                     // success
-                    info { "get request success" }
+                    info { "get request success: ${response.body()}" }
                 }
             }
         })
@@ -144,33 +146,22 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun upload(fileMap: TreeMap<String, File>) {
-        // 为了避免添加的测试用的公共参数影响ProgressManager获取进度，这里重新构建Retrofit
-        // 实际业务中根据具体情况，可以对url进行处理、拼接后，将实际的url传给ProgressManager
-        val tempRetrofit = RetrofitBuilder()
-                .addInterceptor(OkHttpLogInterceptor())
-                .baseUrl(KalleUrl.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build(this@MainActivity)
-        val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
-        //progress
-        ProgressManager.getInstance()
-                .addRequestListener(KalleUrl.BASE_URL + KalleUrl.UPLOAD, object : ProgressListener {
-                    override fun onProgress(progressInfo: ProgressInfo) {
-                        info { "progress:${progressInfo.percent}%" }
-                    }
-
-                    override fun onError(id: Long, e: Exception?) {
-                        e?.printStackTrace()
-                        error(e?.localizedMessage)
-                    }
-                })
-        //
-        val name = RequestBodyBuilder.createText("guest")
-        val age = RequestBodyBuilder.createText("25")
-        val fileList = RequestBodyBuilder.createMultipartBodyPartList(fileMap)
-
-        val uploadFile = tempKalleApi.uploadFile(name, age, fileList)
-        uploadFile.enqueue(object : Callback<UploadBean> {
+        // 普通表单型数据
+        val textMimeType = ContentType.TEXT.mimeType
+        val nameBody = "guest".toRequestBody(textMimeType)
+        val ageBody = "25".toRequestBody(textMimeType)
+        // 二进制数据
+        val filePartList = arrayListOf<MultipartBody.Part>()
+        val imageMimeType = ContentType.IMAGE.mimeType
+        for (entry in fileMap) {
+            val key = entry.key
+            val file = entry.value
+            val requestBody = file.asRequestBody(imageMimeType)
+            val part = MultipartBody.Part.createFormData(key, file.name, requestBody)
+            filePartList.add(part)
+        }
+        // 发起
+        kalleApi.uploadFile(nameBody, ageBody, filePartList).enqueue(object : Callback<UploadBean> {
             override fun onFailure(call: Call<UploadBean>, t: Throwable) {
                 if (call.isCanceled) {
                     // cancel
@@ -184,57 +175,16 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             override fun onResponse(call: Call<UploadBean>, response: Response<UploadBean>) {
                 if (response.isSuccessful && response.body() != null) {
                     // success
-                    info { "upload request success" }
+                    info { "upload request success: ${response.body()}" }
                 }
             }
         })
-
-//        val paramMap = TreeMap<String, RequestBody>()
-//        paramMap["name"] = RequestBodyBuilder.createText("guest")
-//        paramMap["age"] = RequestBodyBuilder.createText("25")
-//        val uploadFile1 = tempKalleApi.uploadFile1(paramMap, fileList)
-//        uploadFile1.enqueue(object : Callback<UploadBean> {
-//            override fun onFailure(call: Call<UploadBean>, t: Throwable) {
-//                if (call.isCanceled) {
-//                    // cancel
-//                    info { "upload request cancel" }
-//                } else {
-//                    // fail
-//                    info { "upload request fail" }
-//                }
-//            }
-//
-//            override fun onResponse(call: Call<UploadBean>, response: Response<UploadBean>) {
-//                if (response.isSuccessful && response.body() != null) {
-//                    // success
-//                    info { "upload request success" }
-//                }
-//            }
-//        })
     }
 
     private fun download() {
-        // 为了避免添加的测试用的公共参数影响ProgressManager获取进度，这里重新构建Retrofit
-        // 实际业务中根据具体情况，可以对url进行处理、拼接后，将实际的url传给ProgressManager
-        val tempRetrofit = RetrofitBuilder()
-                .addInterceptor(OkHttpLogInterceptor())
-                .baseUrl(KalleUrl.BASE_URL)
-                .build(this@MainActivity)
-        val tempKalleApi = tempRetrofit.create(IKalleApi::class.java)
         val fileUrl = "https://imgs.aixifan.com/cms/2018_10_16/1539673075965.jpg"
-        // progress
-        ProgressManager.getInstance().addResponseListener(fileUrl, object : ProgressListener {
-            override fun onProgress(progressInfo: ProgressInfo) {
-                info { "progress:${progressInfo.percent}%" }
-            }
-
-            override fun onError(id: Long, e: Exception?) {
-                e?.printStackTrace()
-                error(e?.localizedMessage)
-            }
-        })
-        //
-        val downloadFile = tempKalleApi.downloadFile(fileUrl)
+        // val fileUrl = "https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc5ec335a35b45bd84040a19172885a6~tplv-k3u1fbpfcp-watermark.image?imageslim"
+        val downloadFile = kalleApi.downloadFile(fileUrl)
         downloadFile.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 if (call.isCanceled) {
@@ -264,7 +214,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private fun postJson() {
         val simpleBean = SimpleBean("guest", "25")
-        val resultBody = RequestBodyBuilder.createJson(Gson().toJson(simpleBean))
+        val jsonValue = Gson().toJson(simpleBean)
+        val mediaType = ContentType.JSON.value.toMediaType()
+        val resultBody = jsonValue.toRequestBody(mediaType)
         val postJson = kalleApi.postJson(resultBody)
         postJson.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {

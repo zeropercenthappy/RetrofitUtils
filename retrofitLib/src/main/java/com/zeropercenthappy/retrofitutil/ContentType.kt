@@ -1,7 +1,8 @@
 package com.zeropercenthappy.retrofitutil
 
+import okhttp3.MediaType.Companion.toMediaType
+
 enum class ContentType(val value: String) {
-    CONTENT_TYPE("Content-Type"),
     TEXT("text/plain"),
     IMAGE("image/*"),
     JPG("image/jpeg"),
@@ -12,6 +13,8 @@ enum class ContentType(val value: String) {
     MP4("video/mpeg4"),
     AVI("video/avi"),
     WMV("video/x-ms-wmv"),
-    JSON("application/json")
-    ;
+    JSON("application/json");
+
+    val mimeType = value.toMediaType()
+
 }

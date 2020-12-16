@@ -21,7 +21,7 @@ Add the dependency
 
 ```groovy
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.1.3'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.2.0'
 }
 ```
 
@@ -50,8 +50,8 @@ val retrofit = RetrofitBuilder()
     .addConverterFactory(GsonConverterFactory.create())
     // option: if you have call adapter to add
     .addCallAdapterFactory(yourCallAdapter)
-	// ootion: if you want to modify okhttp builder
-	.okhttpClientBuilderOption { okhttpBuilder ->
+	// option: if you want to modify okHttp builder
+	.okHttpClientBuilderOption { okHttpBuilder ->
         
     }
 	// option: if you want to set max cache size (set it as -1 to disable)
