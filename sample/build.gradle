@@ -41,7 +41,7 @@ dependencies {
     }
 
     implementation project(':retrofitLib')
-    implementation 'com.github.zeropercenthappy:OkHttpLogInterceptor:1.6.2'
+    implementation 'com.github.zeropercenthappy:OkHttpLogInterceptor:1.6.3'
     implementation 'com.github.zeropercenthappy:ZPHAndroidUtils:1.3.6'
     implementation('com.yanzhenjie:album:2.1.3')
 }
