@@ -21,7 +21,7 @@ Add the dependency
 
 ```groovy
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.2.0'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.2.1'
 }
 ```
 
@@ -40,6 +40,8 @@ val retrofit = RetrofitBuilder()
     .addHeader(key, value)
     // option: if you have other interceptor to add
     .addInterceptor(yourInterceptor)
+    // option: if you have other network interceptor to add
+    .addNetworkInterceptor(yourInterceptor)
     // option: if you want to define connect timeout (default is 10 sec)
     .connectTimeout(10_000)
     // option: if you want to define read timeout (default is 10 sec)

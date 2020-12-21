@@ -42,11 +42,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         extraHeaderMap = mapOf("extraHeaderKey" to "extraHeaderValue")
 
         val retrofit = RetrofitBuilder()
-                .addInterceptor(OkHttpLogInterceptor("RetrofitTest"))
                 .baseUrl(IKalleApi.BASE_URL)
                 .addHeaders(extraHeaderMap)
                 .addParams(extraParamMap)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addNetworkInterceptor(OkHttpLogInterceptor("RetrofitTest"))
                 .build(this)
         kalleApi = retrofit.create(IKalleApi::class.java)
 
@@ -182,8 +182,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun download() {
-        val fileUrl = "https://imgs.aixifan.com/cms/2018_10_16/1539673075965.jpg"
-        // val fileUrl = "https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc5ec335a35b45bd84040a19172885a6~tplv-k3u1fbpfcp-watermark.image?imageslim"
+        // val fileUrl = "https://imgs.aixifan.com/cms/2018_10_16/1539673075965.jpg"
+        val fileUrl = "https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc5ec335a35b45bd84040a19172885a6~tplv-k3u1fbpfcp-watermark.image?imageslim"
         val downloadFile = kalleApi.downloadFile(fileUrl)
         downloadFile.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {

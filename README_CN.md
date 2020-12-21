@@ -21,7 +21,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.2.0'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.2.1'
 }
 ```
 
@@ -40,6 +40,8 @@ val retrofit = RetrofitBuilder()
     .addHeader(key, value)
     // 可选: 如果你有额外的拦截器要添加
     .addInterceptor(yourInterceptor)
+    // 可选: 如果你有额外的网络拦截器要添加
+    .addNetworkInterceptor(yourInterceptor)
     // 可选: 如果你要自定义connect超时时间（默认10秒）
     .connectTimeout(10_000)
     // 可选: 如果你要自定义read超时时间（默认10秒）

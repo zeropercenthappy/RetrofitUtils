@@ -18,6 +18,7 @@ class RetrofitBuilder {
     private var extraParamMap = TreeMap<String, String>()
     private val extraHeaderMap = TreeMap<String, String>()
     private val extraInterceptorList = arrayListOf<Interceptor>()
+    private val extraNetworkInterceptorList = arrayListOf<Interceptor>()
     private var maxCacheSize = 1024_000_000L
     private var connectTimeoutMs: Long = 10_000
     private var readTimeoutMs: Long = 10_000
@@ -73,6 +74,16 @@ class RetrofitBuilder {
 
     fun addInterceptors(interceptorList: List<Interceptor>): RetrofitBuilder {
         extraInterceptorList.addAll(interceptorList)
+        return this
+    }
+
+    fun addNetworkInterceptor(interceptor: Interceptor): RetrofitBuilder {
+        extraNetworkInterceptorList.add(interceptor)
+        return this
+    }
+
+    fun addNetworkInterceptor(interceptorList: List<Interceptor>): RetrofitBuilder {
+        extraNetworkInterceptorList.addAll(interceptorList)
         return this
     }
 
@@ -145,9 +156,13 @@ class RetrofitBuilder {
                         it.cookieJar(CookieJarImpl(context))
                     }
                 }.also {
-                    // 拦截器
+                    // Application拦截器
                     for (interceptor in extraInterceptorList) {
                         it.addInterceptor(interceptor)
+                    }
+                    // Network拦截器
+                    for (interceptor in extraNetworkInterceptorList) {
+                        it.addNetworkInterceptor(interceptor)
                     }
                 }.build()
         // 构造Retrofit
