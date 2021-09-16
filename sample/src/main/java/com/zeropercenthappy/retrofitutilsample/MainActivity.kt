@@ -1,7 +1,7 @@
 package com.zeropercenthappy.retrofitutilsample
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.yanzhenjie.album.Album
 import com.zeropercenthappy.okhttp_log_interceptor.OkHttpLogInterceptor
@@ -11,6 +11,7 @@ import com.zeropercenthappy.retrofitutilsample.api.IKalleApi
 import com.zeropercenthappy.retrofitutilsample.pojo.*
 import com.zeropercenthappy.utilslibrary.utils.CacheUtils
 import com.zeropercenthappy.utilslibrary.utils.FileUtils
+import com.zeropercenthappy.utilslibrary.utils.ZPHLogger
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaType
@@ -18,17 +19,15 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.info
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.util.*
+import kotlin.concurrent.thread
 
-class MainActivity : AppCompatActivity(), AnkoLogger {
+class MainActivity : AppCompatActivity(), ZPHLogger {
 
     private lateinit var extraParamMap: Map<String, String>
     private lateinit var extraHeaderMap: Map<String, String>
@@ -42,12 +41,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         extraHeaderMap = mapOf("extraHeaderKey" to "extraHeaderValue")
 
         val retrofit = RetrofitBuilder()
-                .baseUrl(IKalleApi.BASE_URL)
-                .addHeaders(extraHeaderMap)
-                .addParams(extraParamMap)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addNetworkInterceptor(OkHttpLogInterceptor("RetrofitTest"))
-                .build(this)
+            .baseUrl(IKalleApi.BASE_URL)
+            .addHeaders(extraHeaderMap)
+            .addParams(extraParamMap)
+            .addConverterFactory(GsonConverterFactory.create())
+            .addNetworkInterceptor(OkHttpLogInterceptor("RetrofitTest"))
+            .build(this)
         kalleApi = retrofit.create(IKalleApi::class.java)
 
         btn_login.setOnClickListener { login() }
@@ -131,18 +130,18 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private fun pickImage() {
         Album.image(this)
-                .multipleChoice()
-                .selectCount(3)
-                .camera(true)
-                .columnCount(3)
-                .onResult { result ->
-                    val fileMap = TreeMap<String, File>()
-                    for ((index, albumFile) in result.withIndex()) {
-                        fileMap["file${index + 1}"] = File(albumFile.path)
-                    }
-                    upload(fileMap)
+            .multipleChoice()
+            .selectCount(3)
+            .camera(true)
+            .columnCount(3)
+            .onResult { result ->
+                val fileMap = TreeMap<String, File>()
+                for ((index, albumFile) in result.withIndex()) {
+                    fileMap["file${index + 1}"] = File(albumFile.path)
                 }
-                .start()
+                upload(fileMap)
+            }
+            .start()
     }
 
     private fun upload(fileMap: TreeMap<String, File>) {
@@ -183,7 +182,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private fun download() {
         // val fileUrl = "https://imgs.aixifan.com/cms/2018_10_16/1539673075965.jpg"
-        val fileUrl = "https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc5ec335a35b45bd84040a19172885a6~tplv-k3u1fbpfcp-watermark.image?imageslim"
+        val fileUrl =
+            "https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc5ec335a35b45bd84040a19172885a6~tplv-k3u1fbpfcp-watermark.image?imageslim"
         val downloadFile = kalleApi.downloadFile(fileUrl)
         downloadFile.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
@@ -198,9 +198,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 // download completely
-                doAsync {
+                thread {
                     if (response.isSuccessful && response.body() != null) {
-                        val cacheFile = CacheUtils.createFormatCacheFile(this@MainActivity, "jpg", true)
+                        val cacheFile =
+                            CacheUtils.createFormatCacheFile(this@MainActivity, "jpg", true)
                         val body = response.body()
                         if (cacheFile != null && body != null) {
                             val result = FileUtils.writeFileByIS(cacheFile, body.byteStream())

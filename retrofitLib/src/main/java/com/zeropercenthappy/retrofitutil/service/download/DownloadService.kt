@@ -53,8 +53,8 @@ class DownloadService : IntentService("DownloadService") {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun onHandleIntent(intent: Intent) {
-        downloadMap = intent.getSerializableExtra(EXTRA_DOWNLOAD_MAP) as Map<String, File>
+    override fun onHandleIntent(intent: Intent?) {
+        downloadMap = intent?.getSerializableExtra(EXTRA_DOWNLOAD_MAP) as Map<String, File>? ?: return
         download()
     }
 
