@@ -5,7 +5,7 @@ import android.app.IntentService
 import android.content.Context
 import android.content.Intent
 import com.zeropercenthappy.retrofitutil.RetrofitBuilder
-import com.zeropercenthappy.utilslibrary.utils.FileUtils
+import com.zeropercenthappy.retrofitutil.ext.writeFromInputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -54,7 +54,8 @@ class DownloadService : IntentService("DownloadService") {
 
     @Suppress("UNCHECKED_CAST")
     override fun onHandleIntent(intent: Intent?) {
-        downloadMap = intent?.getSerializableExtra(EXTRA_DOWNLOAD_MAP) as Map<String, File>? ?: return
+        downloadMap =
+            intent?.getSerializableExtra(EXTRA_DOWNLOAD_MAP) as Map<String, File>? ?: return
         download()
     }
 
@@ -67,8 +68,7 @@ class DownloadService : IntentService("DownloadService") {
                 continue
             }
             val responseBody = api.download(url)
-            val result = FileUtils.writeFileByIS(cacheFile, responseBody.byteStream())
-
+            val result = cacheFile.writeFromInputStream(responseBody.byteStream())
             // Download success, move cache file to destination file
             if (result) {
                 cacheFile.renameTo(destinationFile)

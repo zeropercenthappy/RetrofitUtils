@@ -1,6 +1,6 @@
 package com.zeropercenthappy.retrofitutil
 
-import com.zeropercenthappy.utilslibrary.utils.FileUtils
+import com.zeropercenthappy.retrofitutil.ext.mimeType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -18,15 +18,11 @@ object RequestBodyBuilder {
     fun createMultipartBodyPartList(fileMap: Map<String, File>): List<MultipartBody.Part> {
         val partList = arrayListOf<MultipartBody.Part>()
         for (key in fileMap.keys) {
-            val file = fileMap[key]
-            file?.apply {
-                val mimeType = FileUtils.getFileMimeType(file)
-                mimeType?.apply {
-                    val requestBody = file.asRequestBody(mimeType.toMediaTypeOrNull())
-                    val part = MultipartBody.Part.createFormData(key, file.name, requestBody)
-                    partList.add(part)
-                }
-            }
+            val file = fileMap[key] ?: continue
+            val mimeType = file.mimeType.takeIf { it.isNotEmpty() } ?: continue
+            val requestBody = file.asRequestBody(mimeType.toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData(key, file.name, requestBody)
+            partList.add(part)
         }
         return partList
     }
