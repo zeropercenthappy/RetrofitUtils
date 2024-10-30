@@ -7,9 +7,9 @@ buildscript {
     ext.okhttp_version = '4.9.1'
     ext.gson_version = '2.9.0'
     repositories {
-        maven {
-            url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
-        }
+//        maven {
+//            url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
+//        }
         google()
         mavenCentral()
     }
@@ -25,9 +25,9 @@ buildscript {
 
 allprojects {
     repositories {
-        maven {
-            url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
-        }
+//        maven {
+//            url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
+//        }
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
