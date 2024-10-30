@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     defaultConfig {
         applicationId "com.zeropercenthappy.retrofitutilsample"
         minSdkVersion 15
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
@@ -39,6 +39,6 @@ dependencies {
 
     implementation project(':retrofitLib')
     implementation 'com.github.zeropercenthappy:OkHttpLogInterceptor:1.6.7'
-    implementation 'com.github.zeropercenthappy:ZPHAndroidUtils:1.4.0'
+    implementation 'com.github.zeropercenthappy:ZPHAndroidUtils:1.4.1'
     implementation('com.yanzhenjie:album:2.1.3')
 }

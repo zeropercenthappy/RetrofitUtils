@@ -2,7 +2,7 @@
 
 ## Download
 
-### Step 1. 
+### Step 1.
 
 Add it in your root build.gradle at the end of repositories:
 
@@ -15,7 +15,7 @@ allprojects {
 }
 ```
 
-### Step 2. 
+### Step 2.
 
 Add the dependency
 
@@ -35,7 +35,7 @@ dependencies {
 ```kotlin
 val retrofit = RetrofitBuilder()
     .baseUrl(url)
-    // option: if you want to disable cookies manager (lib will handle cookies defaualt, if you set it to false, remember to handle it yourself)
+    // option: if you want to disable cookies manager (lib will handle cookies default, if you set it to false, remember to handle it yourself)
     .handleCookie(false)
     // option: if you have extra quest params to add
     .addParam(key, value)
@@ -55,12 +55,12 @@ val retrofit = RetrofitBuilder()
     .addConverterFactory(GsonConverterFactory.create())
     // option: if you have call adapter to add
     .addCallAdapterFactory(yourCallAdapter)
-	// option: if you want to modify okHttp builder
-	.okHttpClientBuilderOption { okHttpBuilder ->
-        
+    // option: if you want to modify okHttp builder
+    .okHttpClientBuilderOption { okHttpBuilder ->
+
     }
-	// option: if you want to set max cache size (set it as -1 to disable)
-	.setMaxCacheSize(1024_000)
+    // option: if you want to set max cache size (set it as -1 to disable)
+    .setMaxCacheSize(1024_000)
     .build(context)
 val api = retrofit.create(Api::class.java)
 ```
@@ -73,7 +73,8 @@ Create `text/plain` body:
 RequestBodyBuilder.createText(content)
 ```
 
-Create `multilpart body part`: (It will handle file mimetype itself, just put a map with key and file)
+Create `multilpart body part`: (It will handle file mimetype itself, just put a map with key and
+file)
 
 ```kotlin
 RequestBodyBuilder.createMultipartBodyPartList(fileMap)
@@ -105,7 +106,8 @@ fun query(@Field("name") name: String): Call<String>
 
 ### CoroutineCallAdapter
 
-Here offer a `CoroutineConverter` that support request in coroutine scope which just need several lines code:
+Here offer a `CoroutineConverter` that support request in coroutine scope which just need several
+lines code:
 
 ```kotlin
 addCallAdapterFactory(CoroutineCallAdapterFactory())
@@ -132,7 +134,8 @@ try {
 }
 ```
 
-BTW, since Retrofit 2.6.0, it support coroutine natural, you can define a request with `suspend`, and response is just the result :
+BTW, since Retrofit 2.6.0, it support coroutine natural, you can define a request with `suspend`,
+and response is just the result :
 
 ```kotlin
 @FormUrlEncoded
@@ -152,7 +155,7 @@ try {
 }
 ```
 
-You can learn more by yourself if  you interested :)
+You can learn more by yourself if you interested :)
 
 ### Log Interceptor
 
