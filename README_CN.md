@@ -24,7 +24,7 @@ dependencies {
     // For android compat
     implementation 'com.github.zeropercenthappy:RetrofitUtils:1.2.1'
     // For androidX
-    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.3.2'
+    implementation 'com.github.zeropercenthappy:RetrofitUtils:1.3.5'
 }
 ```
 
